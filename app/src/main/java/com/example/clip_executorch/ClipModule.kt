@@ -172,4 +172,14 @@ class ClipModule(private val context: Context) {
         Log.i(TAG, "Similarity: $similarity (dot=$dotProduct, normA=${sqrt(normA)}, normB=${sqrt(normB)})")
         return similarity
     }
+
+    /**
+     * Map raw cosine similarities (~0.15 for noise, ~0.35 for match) to a 0-100% scale.
+     */
+    fun normalizeSimilarity(rawScore: Float): Float {
+        // Empirically determined standard CLIP matching boundaries
+        val minScore = 0.17f
+        val maxScore = 0.35f
+        return ((rawScore - minScore) / (maxScore - minScore)).coerceIn(0f, 1f)
+    }
 }

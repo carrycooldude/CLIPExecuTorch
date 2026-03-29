@@ -281,7 +281,7 @@ fun CLIPSearchScreen() {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(selectedResults.sortedByDescending { it.similarity }) { item ->
-                        ResultCard(item)
+                        ResultCard(item, clipModule.normalizeSimilarity(item.similarity))
                     }
                 }
             } else if (currentBitmap != null) {
@@ -298,7 +298,8 @@ fun CLIPSearchScreen() {
                         )
                     }
                     
-                    singleSimilarity?.let { score ->
+                    singleSimilarity?.let { rawScore ->
+                        val normalizedScore = clipModule.normalizeSimilarity(rawScore)
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
@@ -307,12 +308,19 @@ fun CLIPSearchScreen() {
                                 .background(MaterialTheme.colorScheme.primaryContainer)
                                 .padding(horizontal = 20.dp, vertical = 10.dp)
                         ) {
-                            Text(
-                                text = String.format("Match: %.1f%%", score * 100),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = String.format("Match: %.0f%%", normalizedScore * 100),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                                Text(
+                                    text = String.format("Raw Score: %.3f", rawScore),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                                    fontSize = 11.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -366,7 +374,7 @@ fun CLIPSearchScreen() {
 }
 
 @Composable
-fun ResultCard(result: SearchResult) {
+fun ResultCard(result: SearchResult, normalizedScore: Float) {
     Card(
         modifier = Modifier.fillMaxWidth().aspectRatio(1f),
         shape = RoundedCornerShape(24.dp),
@@ -389,12 +397,19 @@ fun ResultCard(result: SearchResult) {
                     .background(Color.Black.copy(alpha = 0.7f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Text(
-                    text = String.format("%.0f%%", result.similarity * 100),
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = String.format("%.0f%%", normalizedScore * 100),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = String.format("%.3f", result.similarity),
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = 8.sp
+                    )
+                }
             }
         }
     }

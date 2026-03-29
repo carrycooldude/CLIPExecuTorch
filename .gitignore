@@ -29,3 +29,7 @@ __pycache__/
 
 # Keystores
 *.keystore
+
+# Logs
+*.log
+error_log.txt
